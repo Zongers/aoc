@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Open Date Calculator</title>
+    <link rel="icon" href="https://i.ibb.co/W48rv8hd/icon.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #8bbf11;
+            --primary-light: #8bc34a;
+            --primary-dark: #4a7d13;
+            --secondary: #6c5ce7;
+            --success: #00b894;
+            --danger: #ff7675;
+            --warning: #fdcb6e;
+            --info: #0984e3;
+            --text-primary: #2d3436;
+            --text-secondary: #636e72;
+            --bg-color: #f5f7f3;
+            --card-bg: #ffffff;
+            --border-color: #dfe6e9;
+            --footer-color: #b2bec3;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --highlight-green: rgba(107, 168, 37, 0.2);
+            --highlight-purple: rgba(108, 92, 231, 0.2);
+            --highlight-orange: rgba(255, 165, 0, 0.2);
+            --highlight-red: rgba(255, 0, 0, 0.2);
+        }
+
+        [data-theme="dark"] {
+            --primary: #8bc34a;
+            --primary-light: #a5d66a;
+            --primary-dark: #6ba825;
+            --secondary: #7d6bff;
+            --success: #55efc4;
+            --danger: #ff7675;
+            --warning: #ffeaa7;
+            --info: #74b9ff;
+            --text-primary: #f5f6fa;
+            --text-secondary: #dfe6e9;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --border-color: #2d3436;
+            --footer-color: #636e72;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --highlight-green: rgba(139, 195, 74, 0.2);
+            --highlight-purple: rgba(125, 107, 255, 0.2);
+            --highlight-orange: rgba(255, 165, 0, 0.2);
+            --highlight-red: rgba(255, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            padding: 30px;
+            position: relative;
+            transition: var(--transition);
+            margin-bottom: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .current-date {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .date-input-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .date-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .date-input label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .date-input input {
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 1rem;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .date-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(107, 168, 37, 0.2);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn.primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(107, 168, 37, 0.3);
+        }
+
+        .btn.secondary {
+            background: rgba(107, 168, 37, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn.secondary:hover {
+            background: rgba(107, 168, 37, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Premium Excel-like table styles */
+        #resultsTable {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            background: var(--card-bg);
+        }
+
+        #resultsTable thead {
+            background: var(--primary);
+            color: white;
+        }
+
+        #resultsTable th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #resultsTable th:last-child {
+            border-right: none;
+        }
+
+        #resultsTable td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        #resultsTable td:last-child {
+            border-right: none;
+        }
+
+        #resultsTable tr:last-child td {
+            border-bottom: none;
+        }
+
+        #resultsTable tbody tr:hover {
+            background: rgba(107, 168, 37, 0.05);
+        }
+
+        /* Highlight classes */
+        .highlight-green {
+            background-color: var(--highlight-green) !important;
+        }
+
+        .highlight-purple {
+            background-color: var(--highlight-purple) !important;
+        }
+
+        .highlight-orange {
+            background-color: var(--highlight-orange) !important;
+        }
+
+        .highlight-red {
+            background-color: var(--highlight-red) !important;
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            padding: 15px 25px;
+            background: var(--primary);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            transform: translateX(200%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+            color: var(--text-primary);
+        }
+
+        .notification.info {
+            background: var(--info);
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-primary);
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary-light);
+            color: white;
+            transform: rotate(30deg);
+        }
+
+        /* Refresh button */
+        .refresh-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 50px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .refresh-btn:hover {
+            color: var(--primary);
+            background: rgba(107, 168, 37, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .theme-toggle, .refresh-btn {
+                position: static;
+                margin: 0 auto 15px;
+                display: inline-flex;
+                justify-content: center;
+            }
+            
+            #resultsTable {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .date-input input {
+                padding: 10px 14px;
+            }
+            
+            #resultsTable th, #resultsTable td {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="refresh-btn" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <h1><i class="fas fa-calendar-alt"></i> Advanced Open Date Calculator</h1>
+            <p class="subtitle">Press and hold Ctrl and select rows to Highlight!</p>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+
+        <div class="current-date" id="currentDate"></div>
+        
+        <div class="date-input-container">
+            <div class="date-input">
+                <label>Select Current Date:</label>
+                <input type="date" id="dateInput">
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <button class="btn primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculate Open Dates
+            </button>
+            <button class="btn secondary" id="clearBtn">
+                <i class="fas fa-trash-alt"></i> Clear
+            </button>
+            <button class="btn secondary" id="copyBtn">
+                <i class="fas fa-copy"></i> Copy to Clipboard
+            </button>
+        </div>
+
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <th style="width: 30%">Period</th>
+                    <th style="width: 35%">Open Date (DD-MMM-YYYY)</th>
+                    <th style="width: 35%">Open Date (DD-MM-YYYY)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="3" style="text-align: center;">No data calculated yet</td></tr>
+            </tbody>
+        </table>
+
+        <div class="notification" id="notification"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const dateInput = document.getElementById('dateInput');
+            const calculateBtn = document.getElementById('calculateBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const currentDateEl = document.getElementById('currentDate');
+            const resultsTable = document.getElementById('resultsTable').querySelector('tbody');
+            const notification = document.getElementById('notification');
+            const themeToggle = document.getElementById('themeToggle');
+            const refreshBtn = document.getElementById('refreshBtn');
+            
+            // Highlight state
+            let highlightedRows = [];
+            let ctrlPressed = false;
+            
+            // Date periods to calculate (in days)
+            const datePeriods = [
+                { name: "Rollover Date (29 days)", days: 29 },
+                { name: "5 days", days: 5 },
+                { name: "10 days", days: 10 },
+                { name: "20 days", days: 20 },
+                { name: "25 days", days: 25 },
+                { name: "31 days", days: 31 },
+                { name: "90 days", days: 90 },
+                { name: "150 days", days: 150 },
+                { name: "6 months (180 days)", days: 180 },
+                { name: "1 year (365 days)", days: 365 }
+            ];
+            
+            // Initialize theme
+            function initTheme() {
+                const isDarkMode = localStorage.getItem('openDateCalcTheme') === 'dark';
+                if (isDarkMode) {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                }
+            }
+            
+            // Set current date as default
+            function setCurrentDate() {
+                const today = new Date();
+                const formattedDate = formatDateForInput(today);
+                dateInput.value = formattedDate;
+                currentDateEl.textContent = `Current Date: ${formatDisplayDate(today, 'dd-mmm-yyyy')}`;
+                return today;
+            }
+            
+            // Load highlighted rows from localStorage
+            function loadHighlightedRows() {
+                const savedHighlights = localStorage.getItem('highlightedRows');
+                if (savedHighlights) {
+                    highlightedRows = JSON.parse(savedHighlights);
+                    applyHighlights();
+                }
+            }
+            
+            // Save highlighted rows to localStorage
+            function saveHighlightedRows() {
+                localStorage.setItem('highlightedRows', JSON.stringify(highlightedRows));
+            }
+            
+            // Apply highlights to rows
+            function applyHighlights() {
+                // Clear all highlights first
+                resultsTable.querySelectorAll('tr').forEach(row => {
+                    row.className = '';
+                });
+                
+                // Apply new highlights
+                highlightedRows.forEach((rowIndex, i) => {
+                    const row = resultsTable.rows[rowIndex];
+                    if (row) {
+                        // Apply different colors based on highlight order
+                        if (i === 0) row.classList.add('highlight-green');
+                        else if (i === 1) row.classList.add('highlight-purple');
+                        else if (i === 2) row.classList.add('highlight-orange');
+                        else row.classList.add('highlight-red');
+                    }
+                });
+            }
+            
+            // Theme toggle
+            themeToggle.addEventListener('click', function() {
+                const isDarkMode = document.documentElement.hasAttribute('data-theme');
+                if (isDarkMode) {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.setItem('openDateCalcTheme', 'light');
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                } else {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('openDateCalcTheme', 'dark');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                }
+            });
+            
+            // Refresh button
+            refreshBtn.addEventListener('click', function() {
+                const today = setCurrentDate();
+                calculateAllDates(today);
+                showNotification('Refreshed with current date');
+            });
+            
+            // Calculate button click
+            calculateBtn.addEventListener('click', function() {
+                const dateValue = dateInput.value;
+                
+                if (!dateValue) {
+                    showNotification('Please select a date', 'error');
+                    return;
+                }
+                
+                const dateObj = new Date(dateValue);
+                calculateAllDates(dateObj);
+            });
+            
+            // Clear button click
+            clearBtn.addEventListener('click', function() {
+                dateInput.value = '';
+                resultsTable.innerHTML = '<tr><td colspan="3" style="text-align: center;">No data calculated yet</td></tr>';
+                hideNotification();
+                highlightedRows = [];
+                saveHighlightedRows();
+                setCurrentDate();
+            });
+            
+            // Copy button click
+            copyBtn.addEventListener('click', function() {
+                if (resultsTable.rows.length <= 1) {
+                    showNotification('No data to copy', 'error');
+                    return;
+                }
+                
+                let textToCopy = "Period\tOpen Date (DD-MMM-YYYY)\tOpen Date (DD-MM-YYYY)\n";
+                
+                Array.from(resultsTable.rows).forEach(row => {
+                    if (row.cells.length === 3) {
+                        textToCopy += `${row.cells[0].textContent}\t${row.cells[1].textContent}\t${row.cells[2].textContent}\n`;
+                    }
+                });
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    showNotification('Data copied to clipboard!');
+                }).catch(err => {
+                    showNotification('Failed to copy data', 'error');
+                    console.error('Failed to copy:', err);
+                });
+            });
+            
+            // Keyboard events for CTRL key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Control') {
+                    ctrlPressed = true;
+                }
+                
+                // Shortcut for calculate (Ctrl+Enter)
+                if (e.ctrlKey && e.key === 'Enter') {
+                    calculateBtn.click();
+                }
+            });
+            
+            document.addEventListener('keyup', function(e) {
+                if (e.key === 'Control') {
+                    ctrlPressed = false;
+                }
+            });
+            
+            // Row click handler for highlighting
+            resultsTable.addEventListener('click', function(e) {
+                const row = e.target.closest('tr');
+                if (row && row.parentNode === resultsTable) {
+                    const rowIndex = Array.from(resultsTable.rows).indexOf(row);
+                    
+                    if (ctrlPressed) {
+                        // CTRL+Click - add to selection
+                        const existingIndex = highlightedRows.indexOf(rowIndex);
+                        if (existingIndex === -1) {
+                            highlightedRows.push(rowIndex);
+                        } else {
+                            highlightedRows.splice(existingIndex, 1);
+                        }
+                    } else {
+                        // Regular click - single selection
+                        highlightedRows = [rowIndex];
+                    }
+                    
+                    applyHighlights();
+                    saveHighlightedRows();
+                }
+            });
+            
+            // Show notification
+            function showNotification(message, type = 'info') {
+                notification.textContent = message;
+                notification.className = `notification ${type} show`;
+                
+                setTimeout(() => {
+                    hideNotification();
+                }, 4000);
+            }
+            
+            // Hide notification
+            function hideNotification() {
+                notification.className = 'notification';
+            }
+            
+            // Calculate all date periods (PAST dates from selected date)
+            function calculateAllDates(currentDate) {
+                resultsTable.innerHTML = '';
+                
+                datePeriods.forEach(period => {
+                    const openDate = new Date(currentDate);
+                    openDate.setDate(openDate.getDate() - period.days);
+                    
+                    const row = document.createElement('tr');
+                    
+                    // Period name cell
+                    const periodCell = document.createElement('td');
+                    periodCell.textContent = period.name;
+                    row.appendChild(periodCell);
+                    
+                    // Formatted date (DD-MMM-YYYY)
+                    const formattedDate1Cell = document.createElement('td');
+                    formattedDate1Cell.textContent = formatDisplayDate(openDate, 'dd-mmm-yyyy');
+                    row.appendChild(formattedDate1Cell);
+                    
+                    // Formatted date (DD-MM-YYYY)
+                    const formattedDate2Cell = document.createElement('td');
+                    formattedDate2Cell.textContent = formatDisplayDate(openDate, 'dd-mm-yyyy');
+                    row.appendChild(formattedDate2Cell);
+                    
+                    resultsTable.appendChild(row);
+                });
+                
+                // Re-apply any saved highlights
+                applyHighlights();
+                
+                showNotification('Open dates calculated successfully!');
+            }
+            
+            // Format date for input (YYYY-MM-DD)
+            function formatDateForInput(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+            
+            // Format date for display
+            function formatDisplayDate(date, format) {
+                const day = date.getDate();
+                const month = date.getMonth() + 1;
+                const year = date.getFullYear();
+                
+                if (format === 'dd-mm-yyyy') {
+                    // Day-Month-Year format (01-01-2023)
+                    return `${String(day).padStart(2, '0')}-${String(month).padStart(2, '0')}-${year}`;
+                } else {
+                    // Default: Day-MonthName-Year format (01-Jan-2023)
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    return `${day}-${months[month - 1]}-${year}`;
+                }
+            }
+            
+            // Initialize
+            initTheme();
+            const today = setCurrentDate();
+            calculateAllDates(today);
+            loadHighlightedRows();
+        });
+    </script>
+</body>
+</html>
