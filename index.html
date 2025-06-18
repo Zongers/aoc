@@ -27,8 +27,9 @@
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             --highlight-green: rgba(107, 168, 37, 0.2);
             --highlight-purple: rgba(108, 92, 231, 0.2);
-            --highlight-orange: rgba(255, 165, 0, 0.2);
+            --highlight-yellow: rgba(255, 235, 59, 0.2);
             --highlight-red: rgba(255, 0, 0, 0.2);
+            --highlight-default: rgba(0, 0, 0, 0.2);
         }
 
         [data-theme="dark"] {
@@ -49,8 +50,9 @@
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             --highlight-green: rgba(139, 195, 74, 0.2);
             --highlight-purple: rgba(125, 107, 255, 0.2);
-            --highlight-orange: rgba(255, 165, 0, 0.2);
+            --highlight-yellow: rgba(255, 235, 59, 0.2);
             --highlight-red: rgba(255, 0, 0, 0.2);
+            --highlight-default: rgba(255, 255, 255, 0.2);
         }
 
         * {
@@ -252,12 +254,17 @@
             background-color: var(--highlight-purple) !important;
         }
 
-        .highlight-orange {
-            background-color: var(--highlight-orange) !important;
+        .highlight-yellow {
+            background-color: var(--highlight-yellow) !important;
         }
 
         .highlight-red {
             background-color: var(--highlight-red) !important;
+        }
+
+        .highlight-default {
+            background-color: var(--highlight-default) !important;
+            color: var(--text-primary) !important;
         }
 
         /* Notification styles */
@@ -347,6 +354,40 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
+        /* Copy format button */
+        .copy-format-btn {
+            position: absolute;
+            top: 80px;
+            left: 30px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-primary);
+        }
+
+        .copy-format-btn:hover {
+            background: var(--info);
+            color: white;
+        }
+
+        /* First visit highlight */
+        .first-visit-highlight {
+            animation: pulseHighlight 2s ease-in-out;
+        }
+
+        @keyframes pulseHighlight {
+            0% { background-color: var(--highlight-default); }
+            50% { background-color: rgba(0, 0, 0, 0.4); }
+            100% { background-color: var(--highlight-default); }
+        }
+
         /* Responsive styles */
         @media (max-width: 768px) {
             .container {
@@ -367,7 +408,7 @@
                 justify-content: center;
             }
             
-            .theme-toggle, .refresh-btn {
+            .theme-toggle, .refresh-btn, .copy-format-btn {
                 position: static;
                 margin: 0 auto 15px;
                 display: inline-flex;
@@ -405,6 +446,9 @@
         <header>
             <button class="refresh-btn" id="refreshBtn">
                 <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+            <button class="copy-format-btn" id="copyFormatBtn" title="Copy WhatsApp Format">
+                <i class="fab fa-whatsapp"></i>
             </button>
             <h1><i class="fas fa-calendar-alt"></i> Advanced Open Date Calculator</h1>
             <p class="subtitle">Press and hold Ctrl and select rows to Highlight!</p>
@@ -462,21 +506,22 @@
             const notification = document.getElementById('notification');
             const themeToggle = document.getElementById('themeToggle');
             const refreshBtn = document.getElementById('refreshBtn');
+            const copyFormatBtn = document.getElementById('copyFormatBtn');
             
-            // Highlight state
+            // State variables
             let highlightedRows = [];
             let ctrlPressed = false;
+            let firstVisit = true;
             
             // Date periods to calculate (in days)
             const datePeriods = [
                 { name: "Rollover Date (29 days)", days: 29 },
-                { name: "5 days", days: 5 },
-                { name: "10 days", days: 10 },
-                { name: "20 days", days: 20 },
-                { name: "25 days", days: 25 },
-                { name: "31 days", days: 31 },
-                { name: "90 days", days: 90 },
-                { name: "150 days", days: 150 },
+                { name: "Hunting (11th)", days: 10 },
+                { name: "Prepaid Open (20 days)", days: 20 },
+                { name: "30 days Open", days: 30 },
+                { name: "MBB Open (31 days)", days: 31 },
+                { name: "90 days Open", days: 90 },
+                { name: "150 Days Open", days: 150 },
                 { name: "6 months (180 days)", days: 180 },
                 { name: "1 year (365 days)", days: 365 }
             ];
@@ -490,6 +535,17 @@
                 } else {
                     document.documentElement.removeAttribute('data-theme');
                     themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                }
+            }
+            
+            // Check first visit
+            function checkFirstVisit() {
+                const visited = localStorage.getItem('openDateCalcVisited');
+                if (!visited) {
+                    firstVisit = true;
+                    localStorage.setItem('openDateCalcVisited', 'true');
+                } else {
+                    firstVisit = false;
                 }
             }
             
@@ -527,11 +583,10 @@
                 highlightedRows.forEach((rowIndex, i) => {
                     const row = resultsTable.rows[rowIndex];
                     if (row) {
-                        // Apply different colors based on highlight order
                         if (i === 0) row.classList.add('highlight-green');
                         else if (i === 1) row.classList.add('highlight-purple');
-                        else if (i === 2) row.classList.add('highlight-orange');
-                        else row.classList.add('highlight-red');
+                        else if (i === 2) row.classList.add('highlight-yellow');
+                        else if (i === 3) row.classList.add('highlight-red');
                     }
                 });
             }
@@ -603,6 +658,63 @@
                 });
             });
             
+            // Copy WhatsApp format button click
+            copyFormatBtn.addEventListener('click', function() {
+                if (resultsTable.rows.length <= 1) {
+                    showNotification('No data to copy', 'error');
+                    return;
+                }
+                
+                const today = new Date(dateInput.value || new Date());
+                const formattedToday = formatDisplayDate(today, 'dd-mmm-yyyy');
+                
+                let whatsappText = `*${formattedToday} Open Dates*\n\n`;
+                
+                // Find specific dates
+                let rolloverDate = '';
+                let prepaidDate = '';
+                let mbbDate = '';
+                let days150Date = '';
+                
+                Array.from(resultsTable.rows).forEach(row => {
+                    if (row.cells.length === 3) {
+                        const period = row.cells[0].textContent;
+                        const date = row.cells[1].textContent;
+                        
+                        if (period.includes('29 days')) {
+                            rolloverDate = date;
+                        } else if (period.includes('20 days')) {
+                            prepaidDate = date;
+                        } else if (period.includes('31 days')) {
+                            mbbDate = date;
+                        } else if (period.includes('150 Days')) {
+                            days150Date = date;
+                        }
+                    }
+                });
+                
+                // Build the WhatsApp format text with proper spacing
+                if (rolloverDate) {
+                    whatsappText += `🔄  *Rollover:* ${rolloverDate}\n\n`;
+                }
+                if (prepaidDate) {
+                    whatsappText += `📌  *Prepaid Open:* ${prepaidDate}\n\n`;
+                }
+                if (mbbDate) {
+                    whatsappText += `📌 *MBB Open:* ${mbbDate}\n\n`;
+                }
+                if (days150Date) {
+                    whatsappText += `📌  *150 Days:* ${days150Date}\n`;
+                }
+                
+                navigator.clipboard.writeText(whatsappText).then(() => {
+                    showNotification('WhatsApp format copied to clipboard!');
+                }).catch(err => {
+                    showNotification('Failed to copy data', 'error');
+                    console.error('Failed to copy:', err);
+                });
+            });
+            
             // Keyboard events for CTRL key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Control') {
@@ -663,12 +775,19 @@
             // Calculate all date periods (PAST dates from selected date)
             function calculateAllDates(currentDate) {
                 resultsTable.innerHTML = '';
+                highlightedRows = []; // Reset highlights
                 
-                datePeriods.forEach(period => {
+                datePeriods.forEach((period, index) => {
                     const openDate = new Date(currentDate);
                     openDate.setDate(openDate.getDate() - period.days);
                     
                     const row = document.createElement('tr');
+                    
+                    // Apply first visit highlight to 20% transparent black
+                    if (firstVisit && period.days === 20) {
+                        row.classList.add('first-visit-highlight');
+                        firstVisit = false;
+                    }
                     
                     // Period name cell
                     const periodCell = document.createElement('td');
@@ -686,11 +805,24 @@
                     row.appendChild(formattedDate2Cell);
                     
                     resultsTable.appendChild(row);
+                    
+                    // Auto-highlight based on days
+                    if (period.days === 29) {
+                        highlightedRows.push(index);
+                        row.classList.add('highlight-green');
+                    } else if (period.days === 11) {
+                        highlightedRows.push(index);
+                        row.classList.add('highlight-purple');
+                    } else if (period.days === 20) {
+                        highlightedRows.push(index);
+                        row.classList.add('highlight-yellow');
+                    } else if (period.days === 31) {
+                        highlightedRows.push(index);
+                        row.classList.add('highlight-red');
+                    }
                 });
                 
-                // Re-apply any saved highlights
-                applyHighlights();
-                
+                saveHighlightedRows();
                 showNotification('Open dates calculated successfully!');
             }
             
@@ -720,6 +852,7 @@
             
             // Initialize
             initTheme();
+            checkFirstVisit();
             const today = setCurrentDate();
             calculateAllDates(today);
             loadHighlightedRows();
