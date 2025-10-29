@@ -695,16 +695,16 @@
                 
                 // Build the WhatsApp format text with proper spacing
                 if (rolloverDate) {
-                    whatsappText += `🔄  *Rollover:* ${rolloverDate}\n\n`;
+                    whatsappText += `♻  *Rollover:* ${rolloverDate}\n\n`;
                 }
                 if (prepaidDate) {
-                    whatsappText += `📌  *Prepaid:* ${prepaidDate}\n\n`;
+                    whatsappText += `📞  *Prepaid:* ${prepaidDate}\n\n`;
                 }
                 if (mbbDate) {
-                    whatsappText += `📌  *MBB:* ${mbbDate}\n\n`;
+                    whatsappText += `📳  *MBB:* ${mbbDate}\n\n`;
                 }
                 if (days150Date) {
-                    whatsappText += `📌  *150 Days:* ${days150Date}\n`;
+                    whatsappText += `🕓  *150 Days:* ${days150Date}\n`;
                 }
                 
                 navigator.clipboard.writeText(whatsappText).then(() => {
